@@ -34,7 +34,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Entity
-@Table(name = "transfer_queue", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataset_pid", "version_major", "version_minor" }) })
+@Table(name = "transfer_item", uniqueConstraints = { @UniqueConstraint(columnNames = { "dataset_pid", "version_major", "version_minor" }) })
 public class TransferItem {
 
     private static final Logger log = LoggerFactory.getLogger(TransferItem.class);

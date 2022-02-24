@@ -25,7 +25,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "tar_parts")
+@Table(name = "tar_part")
 public class TarPart {
 
     @Id

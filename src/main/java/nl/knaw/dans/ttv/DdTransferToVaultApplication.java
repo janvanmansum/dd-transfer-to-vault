@@ -18,8 +18,6 @@ package nl.knaw.dans.ttv;
 
 import io.dropwizard.Application;
 import io.dropwizard.db.PooledDataSourceFactory;
-import io.dropwizard.health.conf.HealthConfiguration;
-import io.dropwizard.health.core.HealthCheckBundle;
 import io.dropwizard.hibernate.HibernateBundle;
 import io.dropwizard.hibernate.UnitOfWorkAwareProxyFactory;
 import io.dropwizard.setup.Bootstrap;
@@ -78,13 +76,6 @@ public class DdTransferToVaultApplication extends Application<DdTransferToVaultC
     @Override
     public void initialize(final Bootstrap<DdTransferToVaultConfiguration> bootstrap) {
         bootstrap.addBundle(hibernateBundle);
-        bootstrap.addBundle(new HealthCheckBundle<>() {
-
-            @Override
-            protected HealthConfiguration getHealthConfiguration(final DdTransferToVaultConfiguration configuration) {
-                return configuration.getHealthConfiguration();
-            }
-        });
     }
 
     @Override

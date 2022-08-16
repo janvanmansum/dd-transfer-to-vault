@@ -49,10 +49,6 @@ public class DdTransferToVaultConfiguration extends Configuration {
     @Valid
     @NotNull
     private DataArchiveConfiguration dataArchive;
-    @Valid
-    @NotNull
-    @JsonProperty("health")
-    private HealthCheckConfiguration healthConfiguration;
 
     public DataSourceFactory getDatabase() {
 
@@ -61,14 +57,6 @@ public class DdTransferToVaultConfiguration extends Configuration {
 
     public void setDatabase(DataSourceFactory database) {
         this.database = database;
-    }
-
-    public HealthCheckConfiguration getHealthConfiguration() {
-        return healthConfiguration;
-    }
-
-    public void setHealthConfiguration(final HealthCheckConfiguration healthConfiguration) {
-        this.healthConfiguration = healthConfiguration;
     }
 
     public DataArchiveConfiguration getDataArchive() {

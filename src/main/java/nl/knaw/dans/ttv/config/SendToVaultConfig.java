@@ -15,13 +15,16 @@
  */
 package nl.knaw.dans.ttv.config;
 
+import io.dropwizard.util.DataSize;
 import lombok.Data;
+import nl.knaw.dans.validation.GreaterThan;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.nio.file.Path;
 
 @Data
+@GreaterThan(greater = "layerSizeThreshold", smaller = "batchSizeThreshold")
 public class SendToVaultConfig {
     @NotNull
     private Path inbox;
@@ -33,7 +36,12 @@ public class SendToVaultConfig {
     private Path outbox;
 
     @Min(1)
-    private long maxBatchSize;
+    @NotNull
+    private DataSize batchSizeThreshold;
+
+    @Min(1)
+    @NotNull
+    private DataSize layerSizeThreshold;
 
     @Min(1)
     private long pollingInterval;

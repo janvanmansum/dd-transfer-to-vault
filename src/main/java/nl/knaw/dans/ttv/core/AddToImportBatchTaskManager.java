@@ -25,7 +25,6 @@ import nl.knaw.dans.ttv.core.service.InboxWatcher;
 import nl.knaw.dans.ttv.core.service.InboxWatcherFactory;
 import nl.knaw.dans.ttv.core.service.TransferItemMetadataReader;
 import nl.knaw.dans.ttv.core.service.TransferItemService;
-import nl.knaw.dans.ttv.db.TransferItemDao;
 
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -33,7 +32,7 @@ import java.util.concurrent.Executors;
 
 @Slf4j
 @RequiredArgsConstructor
-public class SendToVaultTaskManager implements Managed {
+public class AddToImportBatchTaskManager implements Managed {
     @NonNull
     private final Path inbox;
 
@@ -74,7 +73,7 @@ public class SendToVaultTaskManager implements Managed {
         log.debug("creating InboxWatcher for inbox");
         inboxWatcher = inboxWatcherFactory.getInboxWatcher(inbox, null, (path, datastationName) -> {
             log.debug("File added: {}", path);
-            executor.execute(new SendToVaultTask(
+            executor.execute(new AddToImportBatch(
                 fileService,
                 transferItemService,
                 metadataReader,

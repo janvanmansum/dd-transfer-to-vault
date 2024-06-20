@@ -27,7 +27,7 @@ import nl.knaw.dans.ttv.client.VaultCatalogClientFactory;
 import nl.knaw.dans.ttv.config.DdTransferToVaultConfig;
 import nl.knaw.dans.ttv.core.CollectTaskManager;
 import nl.knaw.dans.ttv.core.ExtractMetadataTaskManager;
-import nl.knaw.dans.ttv.core.SendToVaultTaskManager;
+import nl.knaw.dans.ttv.core.AddToImportBatchTaskManager;
 import nl.knaw.dans.ttv.core.TransferItem;
 import nl.knaw.dans.ttv.core.oaiore.OaiOreMetadataReader;
 import nl.knaw.dans.ttv.core.service.FileServiceImpl;
@@ -109,7 +109,7 @@ public class DdTransferToVaultApplication extends Application<DdTransferToVaultC
         environment.lifecycle().manage(extractMetadataTaskManager);
 
         log.info("Creating SendToVaultTaskManager");
-        final var sendToVaultTaskManager = new SendToVaultTaskManager(
+        final var sendToVaultTaskManager = new AddToImportBatchTaskManager(
             configuration.getSendToVault().getInbox(),
             configuration.getSendToVault().getOutbox(),
             configuration.getSendToVault().getPollingInterval(),
@@ -117,7 +117,7 @@ public class DdTransferToVaultApplication extends Application<DdTransferToVaultC
             transferItemService,
             metadataReader,
             configuration.getSendToVault().getWork(),
-            configuration.getSendToVault().getMaxBatchSize(),
+            configuration.getSendToVault().getBatchSizeThreshold().toBytes(),
             new DataVaultClientFactory().createDataVaultClient(configuration.getDataVault(), environment),
             inboxWatcherFactory);
         environment.lifecycle().manage(sendToVaultTaskManager);

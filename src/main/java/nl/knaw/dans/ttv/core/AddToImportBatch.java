@@ -32,13 +32,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
 
 @Slf4j
 @ToString
 @AllArgsConstructor
-public class SendToVaultTask implements Runnable {
+public class AddToImportBatch implements Runnable {
     private final FileService fileService;
     private final TransferItemService transferItemService;
     private final TransferItemMetadataReader metadataReader;

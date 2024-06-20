@@ -58,26 +58,29 @@ extractMetadata:
     # Threads will die after 60 seconds of idleness
     keepAliveTime: 60 seconds
 
-sendToVault:
+# This step is responsible for gathering transfer items into batches and moving them to the inbox of the importIntoVault step. It works on a single thread
+# because it must ensure that each object import directory contains one or more of the next expected versions. If an import item is not the next expected
+# according to the Vault Catalog, it is moved to the "hold" subdirectory. If the next expected version is found, the "hold" directory is scanned for items that
+# can be added to the batch.
+addToImportBatch:
   inbox: /var/opt/dans.knaw.nl/tmp/send-to-vault-inbox
   pollingInterval: 500
   work: /var/opt/dans.knaw.nl/tmp/send-to-vault-work
-  maxBatchSize: 100000000
+  # When the size of the work directory exceeds this threshold, a new batch is move to the outbox and an import job is started at the Data Vault service.
+  batchThresholdSize: 100 MB
+  # The location where the batches are moved to after they are ready to be imported.
   outbox: /var/opt/dans.knaw.nl/tmp/data-vault/inbox
 
-confirmArchived:
-  cron: '0 0 * * * ?' # cron expression for triggering a polling round
-  # TODO: move complete vaultCatalog block to here, deduplicate definition of url.
-  vaultServiceEndpoint: http://localhost:20305
-  taskQueue:
-    nameFormat: "confirm-archived-worker-%d"
-    maxQueueSize: 5000
-    # Number of threads will be increased when maxQueueSize is exceeded.
-    minThreads: 1
-    # No more than maxThreads will be created though
-    maxThreads: 10
-    # Threads will die after 60 seconds of idleness
-    keepAliveTime: 60 seconds
+# This step is responsible for importing the batches in the inbox one by one into the Data Vault service. It works on a single thread and waits for the
+# batch to finish before starting the next one. After each batch is imported, it checks the current size of the top layer in the Data Vault service and
+# starts a new layer if the size exceeds the layerThresholdSize.
+importIntoVault:
+  # The location of the batches to be imported.
+  inbox: /var/opt/dans.knaw.nl/tmp/data-vault/inbox
+  # polling interval in milliseconds
+  pollingInterval: 500
+  # When the size of the current top layer in the Data Vault service exceeds this threshold, a new layer is started.
+  layerThresholdSize: 1 GB
 
 vaultCatalog:
   url: http://localhost:20305

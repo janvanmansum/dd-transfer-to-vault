@@ -57,7 +57,9 @@ public class TransferItem {
                 // Save
                 try (var out = Files.newOutputStream(properties)) {
                     props.store(out, null);
+                    out.flush();
                 }
+                log.debug("Created properties file {}", properties);
             }
             return properties;
         }
@@ -81,15 +83,36 @@ public class TransferItem {
             log.error("File already exists: {}", newLocation);
         }
         else {
-            Files.move(properties, newPropertiesFile);
-            Files.move(dve, tempNewLocation); // Make sure the file is not detected before the move is complete
-            Files.move(tempNewLocation, newLocation);
+            forcedMove(properties, newPropertiesFile);
+            forcedMove(dve, tempNewLocation); // Make sure the file is not detected before the move is complete
+            forcedMove(tempNewLocation, newLocation);
             dve = newLocation;
             properties = newPropertiesFile;
         }
         if (e != null) {
             var errorLogFile = newLocation.resolveSibling(newLocation.getFileName() + ERROR_LOG_SUFFIX);
             writeStackTrace(errorLogFile, e);
+        }
+    }
+
+    private void forcedMove(Path source, Path target) throws IOException {
+        final int maxAttempts = 10;
+        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+            try {
+                Files.move(source, target);
+                return; // Move succeeded, exit the method
+            } catch (IOException e) {
+                log.warn("Attempt {} to move file from {} to {} failed: {}", attempt, source, target, e.getMessage());
+                if (attempt == maxAttempts) {
+                    throw e; // Rethrow the exception after the last attempt
+                }
+                try {
+                    Thread.sleep(1000); // Wait before retrying
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt(); // Restore interrupted status
+                    throw new IOException("File move interrupted", ie);
+                }
+            }
         }
     }
 
@@ -137,6 +160,7 @@ public class TransferItem {
             props.setProperty(key, value);
             try (var out = Files.newOutputStream(properties)) {
                 props.store(out, null);
+                out.flush();
             }
         }
         catch (Exception ex) {
@@ -222,7 +246,7 @@ public class TransferItem {
                     md5.update(buffer, 0, bytesRead);
                     totalBytesRead += bytesRead;
                     if (totalBytesRead % 1048576 == 0) { // Log every MB
-                        log.debug("Read {} MB of {} MB", totalBytesRead / 1048576, fileSize / 1048576);
+//                        log.debug("Read {} MB of {} MB", totalBytesRead / 1048576, fileSize / 1048576);
                     }
                 }
                 var digest = md5.digest();
